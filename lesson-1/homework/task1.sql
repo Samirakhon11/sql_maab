@@ -67,7 +67,7 @@ CREATE TABLE account (
 	balance DECIMAL,
 	account_type VARCHAR(50)
 	CONSTRAINT check_balance CHECK (balance >= 0),
-	CONSTRAINT check_account_type CHECK (account_type IN ('Saving', 'Cheking'))
+	CONSTRAINT check_account_type CHECK (account_type IN ('Saving', 'Checking'))
 );
 
 ALTER TABLE account
@@ -99,6 +99,7 @@ ADD CONSTRAINT default_city DEFAULT ('Unknown');
 
 
 /* 7.Identity */
+DROP TABLE IF EXISTS invoice
 CREATE TABLE invoice (
 	invoice_id INT IDENTITY PRIMARY KEY,
 	amount DECIMAL
@@ -138,6 +139,7 @@ SELECT * FROM books
 
 
 /* Library Management System */
+DROP TABLE IF EXISTS Book
 CREATE TABLE Book (
 	book_id INT PRIMARY KEY,
 	title VARCHAR(100),
@@ -145,6 +147,7 @@ CREATE TABLE Book (
 	published_year INT
 );
 
+DROP TABLE IF EXISTS Member
 CREATE TABLE Member (
 	member_id INT PRIMARY KEY,
 	name VARCHAR(50),
@@ -152,6 +155,7 @@ CREATE TABLE Member (
 	phone_number VARCHAR(50)
 );
 
+DROP TABLE IF EXISTS Loan
 CREATE TABLE Loan (
 	loan_id INT PRIMARY KEY,
 	book_id INT,
