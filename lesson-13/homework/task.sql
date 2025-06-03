@@ -1,47 +1,52 @@
-DECLARE @InputDate VARCHAR(8) = '05032025';
+-- Input: Provide the date in 'YYYY-MM-DD' format
+DECLARE @InputDate VARCHAR(20) = '2024-07-03';
+DECLARE @Date DATE = TRY_CONVERT(DATE, @InputDate);
 
--- Set DATEFIRST to Sunday
-SET DATEFIRST 7;
+-- Extract first and last day of the month
+DECLARE @FirstOfMonth DATE = DATEFROMPARTS(YEAR(@Date), MONTH(@Date), 1);
+DECLARE @LastOfMonth DATE = EOMONTH(@FirstOfMonth);
 
--- Parse input date
-DECLARE @Date DATE = CONVERT(DATE, STUFF(STUFF(@InputDate, 5, 0, '-'), 3, 0, '-'));
-DECLARE @Year INT = YEAR(@Date);
-DECLARE @Month INT = MONTH(@Date);
-DECLARE @FirstOfMonth DATE = DATEFROMPARTS(@Year, @Month, 1);
-DECLARE @DaysInMonth INT = DAY(EOMONTH(@FirstOfMonth));
-
--- Calculate offset (days before the first day of the month, if it doesn't start on Sunday)
-DECLARE @Offset INT = DATEPART(WEEKDAY, @FirstOfMonth) - 1;
-
--- Generate calendar grid (42 days = 6 weeks)
-WITH Numbers AS (
-    SELECT TOP (42) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n
-    FROM master.dbo.spt_values
+-- Recursive CTE to build list of dates in the month
+WITH Dates AS (
+    SELECT @FirstOfMonth AS [Date]
+    UNION ALL
+    SELECT DATEADD(DAY, 1, [Date])
+    FROM Dates
+    WHERE DATEADD(DAY, 1, [Date]) <= @LastOfMonth
 ),
-Calendar AS (
-    SELECT
-        DATEADD(DAY, n - @Offset, @FirstOfMonth) AS CalendarDate,
-        n / 7 AS WeekNum
-    FROM Numbers
-),
-CalendarWithDay AS (
+-- Add week and weekday info
+LabeledDates AS (
     SELECT 
-        WeekNum,
-        DATENAME(WEEKDAY, CalendarDate) AS WeekdayName,
-        CASE 
-            WHEN MONTH(CalendarDate) = @Month THEN DAY(CalendarDate)
-            ELSE NULL
-        END AS DayValue
-    FROM Calendar
+        [Date],
+        DATENAME(WEEKDAY, [Date]) AS WeekDayName,
+        DATEPART(WEEK, [Date]) - DATEPART(WEEK, @FirstOfMonth) + 1 AS WeekNumber,
+        DATEPART(WEEKDAY, [Date]) AS DayOfWeek
+    FROM Dates
+),
+-- Pivot the result: one row per week, columns for Sunday–Saturday
+Calendar AS (
+    SELECT 
+        WeekNumber,
+        [Date] AS ActualDate,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 1 THEN DAY([Date]) END AS Sunday,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 2 THEN DAY([Date]) END AS Monday,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 3 THEN DAY([Date]) END AS Tuesday,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 4 THEN DAY([Date]) END AS Wednesday,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 5 THEN DAY([Date]) END AS Thursday,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 6 THEN DAY([Date]) END AS Friday,
+        CASE WHEN DATEPART(WEEKDAY, [Date]) = 7 THEN DAY([Date]) END AS Saturday
+    FROM LabeledDates
 )
-SELECT
-    MAX(CASE WHEN WeekdayName = 'Sunday' THEN DayValue END) AS Sunday,
-    MAX(CASE WHEN WeekdayName = 'Monday' THEN DayValue END) AS Monday,
-    MAX(CASE WHEN WeekdayName = 'Tuesday' THEN DayValue END) AS Tuesday,
-    MAX(CASE WHEN WeekdayName = 'Wednesday' THEN DayValue END) AS Wednesday,
-    MAX(CASE WHEN WeekdayName = 'Thursday' THEN DayValue END) AS Thursday,
-    MAX(CASE WHEN WeekdayName = 'Friday' THEN DayValue END) AS Friday,
-    MAX(CASE WHEN WeekdayName = 'Saturday' THEN DayValue END) AS Saturday
-FROM CalendarWithDay
-GROUP BY WeekNum
-ORDER BY WeekNum;
+SELECT 
+    WeekNumber,
+    MAX(Sunday)    AS Sunday,
+    MAX(Monday)    AS Monday,
+    MAX(Tuesday)   AS Tuesday,
+    MAX(Wednesday) AS Wednesday,
+    MAX(Thursday)  AS Thursday,
+    MAX(Friday)    AS Friday,
+    MAX(Saturday)  AS Saturday
+FROM Calendar
+GROUP BY WeekNumber
+ORDER BY WeekNumber
+OPTION (MAXRECURSION 1000);
