@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS Departments;
-
 CREATE TABLE Departments (
 	DepartmentID INT PRIMARY KEY,
 	DepartmentName VARCHAR(50)
@@ -12,7 +10,6 @@ VALUES
     (103, 'Finance'),
     (104, 'Marketing');
 
-DROP TABLE IF EXISTS Employees;
 
 CREATE TABLE Employees (
 	EmployeeID INT PRIMARY KEY,
@@ -29,7 +26,6 @@ VALUES
     (4, 'David', 103, 72000),
     (5, 'Eva', NULL, 68000);
 
-DROP TABLE IF EXISTS Projects;
 
 CREATE TABLE Projects (
 	ProjectID INT PRIMARY KEY, 
@@ -93,7 +89,7 @@ ON d.DepartmentID = e.DepartmentID
 /* TASK5 */
 SELECT
 	d.DepartmentID,
-	d.DepartmentID,
+	d.DepartmentName,
 	SUM(e.Salary) AS TotalSalary
 FROM Departments AS d
 LEFT JOIN Employees AS e

@@ -7,21 +7,6 @@ CREATE TABLE Groupings (
 	Status VARCHAR(50) CHECK (Status IN('Passed', 'Failed'))
 );
 
-INSERT INTO Groupings 
-VALUES
-	(1, 'Passed'),
-	(2, 'Passed'),
-	(3, 'Passed'),
-	(4, 'Passed'),
-	(5, 'Failed'),
-	(6, 'Failed'),
-	(7, 'Failed'),
-	(8, 'Failed'),
-	(9, 'Failed'),
-	(10, 'Passed'),
-	(11, 'Passed'),
-	(12, 'Passed')
-
 SELECT * FROM Groupings
 
 SELECT 
@@ -48,29 +33,6 @@ CREATE TABLE [dbo].[EMPLOYEES_N]
     [FIRST_NAME] [varchar](20) NULL,
     [HIRE_DATE] [date] NOT NULL
 );
-
-INSERT INTO EMPLOYEES_N (EMPLOYEE_ID, FIRST_NAME, HIRE_DATE)
-VALUES
-(1, 'Alice', '1975-06-10'),
-(2, 'Bob', '1976-03-15'),
-(3, 'Charlie', '1977-07-21'),
-(4, 'David', '1979-11-09'),
-(5, 'Eve', '1980-04-12'),
-(6, 'Frank', '1982-05-23'),
-(7, 'Grace', '1983-08-30'),
-(8, 'Hannah', '1984-01-05'),
-(9, 'Ivan', '1985-09-17'),
-(10, 'Jack', '1990-02-28'),
-(11, 'Karen', '1997-06-14'),
-(12, 'Leo', '2000-12-31'),
-(13, 'Mia', '2005-07-11'),
-(14, 'Nina', '2010-09-19'),
-(15, 'Oscar', '2011-10-22'),
-(16, 'Pam', '2012-01-03'),
-(17, 'Quinn', '2015-04-08'),
-(18, 'Raj', '2016-11-11'),
-(19, 'Sara', '2019-06-06'),
-(20, 'Tom', '2020-03-03');
 
 SELECT
 	MIN(YEAR) AS StartYear,

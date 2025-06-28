@@ -34,3 +34,19 @@ WHERE
 	WHEN rnk % 2 = 0 THEN	total_rows % 2 =0 AND rnk = (total_rows / 2 + (total_rows / 2) + 1) / 2;
 
 SELECT * FROM Shipments
+
+
+SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY Num) OVER () AS Median
+FROM Shipments;
+
+
+WITH RankedShipments AS (
+    SELECT Num, ROW_NUMBER() OVER (ORDER BY Num) as rn, COUNT(*) OVER () as total_rows
+    FROM Shipments
+)
+SELECT 
+    CASE 
+        WHEN total_rows % 2 = 1 THEN (SELECT Num FROM RankedShipments WHERE rn = (total_rows + 1) / 2)
+        ELSE (SELECT AVG(Num) FROM RankedShipments WHERE rn IN ((total_rows / 2), (total_rows / 2) + 1))
+    END as Median
+FROM RankedShipments

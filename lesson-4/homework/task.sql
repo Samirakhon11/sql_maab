@@ -86,18 +86,21 @@ values ('a'), ('a'), ('a'),
 
 SELECT * FROM letters	
 
+/* b is first */
 SELECT letter FROM letters
 ORDER BY 
 	CASE WHEN letter = 'b' THEN 0 ELSE 1
 	END,
 	letter;
 
+/* b is the last */
 SELECT letter FROM letters
 ORDER BY 
 	CASE WHEN letter = 'b' THEN 1 ELSE 0
 	END,
 	letter;
 
+/* b is third */
 SELECT letter FROM letters
 ORDER BY
 	CASE 
